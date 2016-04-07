@@ -15,7 +15,7 @@ int getDistance() {
 	PORTA &= 0b11111110; //pin A0 LOW
 	DDRA &= 0b11111110; //input
 
-	usart_fprintf_P(USART_0, PSTR("1\n"));
+	//usart_fprintf_P(USART_0, PSTR("1\n"));
 
 	unsigned long count = 0;
 
@@ -23,19 +23,19 @@ int getDistance() {
 		_delay_us(5);
 		count++;
 		if(count > 200000){
-			usart_fprintf_P(USART_0, PSTR("NOOOO CHICO!!!!!\n"));
+//			usart_fprintf_P(USART_0, PSTR("NOOOO CHICO!!!!!\n"));
 			return -1;
 		}
 	}
 
 	unsigned long start = time_in_microseconds();
-	usart_fprintf_P(USART_0, PSTR("2\n"));
+	//usart_fprintf_P(USART_0, PSTR("2\n"));
 	loop_until_bit_is_clear(PINA, PA0);
 	unsigned long end = time_in_microseconds();
-	usart_fprintf_P(USART_0, PSTR("3\n"));
+	//usart_fprintf_P(USART_0, PSTR("3\n"));
 	long elapsedTime = end - start;
 
 	int distance = elapsedTime/29/2;
-	usart_fprintf_P(USART_0, PSTR("Dist: %lu \n"), end);
+	//usart_fprintf_P(USART_0, PSTR("Dist: %lu \n"), end);
 	return distance;
 }

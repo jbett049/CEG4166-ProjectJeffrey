@@ -100,7 +100,7 @@ void vTaskAttachmentMode(void *pvParameters) {
 	} State;
 	State state = Searching;
 	int count = 0;
-	int INCREMENT = 100;
+	int INCREMENT = 60;
 	int MAX_COUNT = 10000;
 
 	motionInit();
@@ -109,14 +109,12 @@ void vTaskAttachmentMode(void *pvParameters) {
 		int left = getLeft3AvgTemperatures();
 		int center = getCenter4AvgTemperatures();
 		int right = getRight3AvgTemperatures();
-		//int ambient = getAmbientTemperature();
 
 //		motionSpinLeftSlow();
 
 		if (state == Searching) {
 			motionSpinLeftSlow();
 			// ensure significant heat source
-			//if (left > ambient + 3 || right > ambient + 3 || center > ambient + 3) {
 			if(getSignificantTemperature()) {
 				state = Attached;
 			}
@@ -124,26 +122,26 @@ void vTaskAttachmentMode(void *pvParameters) {
 
 		else if(state == Attached) {
 			// ensure significant heat source
-			//if (left > ambient + 3 || right > ambient + 3 || center > ambient + 3) {
 			if(getSignificantTemperature()){
 				count = 0;
 				// Heat source is to the left
 				int distance = getDistance();
 
-				if(distance > 30) {
-					if (left > center) {
-						motionSpinLeft();
-					}
-					// Heat source is to the right
-					else if (right > center) {
-						motionSpinRight();
-					}
-					// Heat source is in the center, follow it
-					else {
+				if (left > center) {
+					motionSpinLeft();
+				}
+				// Heat source is to the right
+				else if (right > center) {
+					motionSpinRight();
+				}
+				// Heat source is in the center, follow it
+				else {
+					if(distance > 20) {
 						motionForward();
 					}
-				}else if(distance > 0){
-					motionStop();
+					else if(distance > 0){
+						motionStop();
+					}
 				}
 			}
 			else {
@@ -320,15 +318,12 @@ int main()
 	initialize_module_timer0();
 	initializeWifi();
 	initializeWebServer();
-	//xTaskCreate(vTaskWebServer, (const portCHAR *)"", 1024, NULL, 3, NULL);
+	xTaskCreate(vTaskWebServer, (const portCHAR *)"", 1024, NULL, 3, NULL);
     xTaskCreate(vTaskTemperature, (const portCHAR *)"", 256, NULL, 3, NULL);
-//    xTaskCreate(vTaskMoveChico, (const portCHAR *)"", 256, NULL, 3, NULL);
-//    xTaskCreate(
-//        vTaskMoveThermoSensor, (const portCHAR *)"", 256, NULL, 3, NULL);
-//    xTaskCreate(vTaskDecoder, (const portCHAR *)"", 256, NULL, 3, NULL);
+    //xTaskCreate(vTaskDecoder, (const portCHAR *)"", 256, NULL, 3, NULL);
 //    xTaskCreate(vTaskLCD, (const portCHAR *)"", 256, NULL, 3, NULL);
-	xTaskCreate(vTaskCommandMode, (const portCHAR *)"", 256, NULL, 3, NULL);
-	xTaskCreate(vTaskAttachmentMode, (const portCHAR *)"", 1024, NULL, 3, NULL);
+	//xTaskCreate(vTaskCommandMode, (const portCHAR *)"", 256, NULL, 3, NULL);
+	xTaskCreate(vTaskAttachmentMode, (const portCHAR *)"", 256, NULL, 3, NULL);
 
     vTaskStartScheduler();
 }
